@@ -3,21 +3,25 @@ class ship {
     this.size = s;
     this.damage = 0;
     this.name = ["Destroyer", "Submarine", "Cruiser", "Battleship", "Carrier"];
+    if (s > this.name.length || s < 2)
+      throw new Error(`Please enter a number between 2 and ${this.name.length}`);
     this.name = this.name[this.size - 2];
+    this.sunk = false;
   }
   hit() {
     this.damage++;
   }
   isSunk() {
-    if (this.damage === this.size) {
-      return `You sunk a battleship`;
+    if (this.damage >= this.size) {
+      this.sunk = true;
+      return `${this.name} sunk`;
     }
     return "Ship hit";
   }
 }
 
 class gameboard {
-  max = [10, 10];
+  max = [9, 9];
   min = [0, 0];
   constructor() {
     this.board = new Map();
@@ -39,31 +43,95 @@ class gameboard {
         ship.hit();
         this.board.set(`${n1} ${n2}`, "fired");
         return ship.isSunk();
-      } else return "Ship missed";
-    }
+      } else {
+        this.board.set(`${n1} ${n2}`, "fired");
+        return "Ship missed";
+      }
+    } else return "Stay in bounds";
     // check each ship in board if match, then damage if match
   }
-  placeShip(n1, n2, s) {
+  displayBoard() {
+    return this.board;
+  }
+  placeShip(n1, n2, s, vertical = true) {
+    if (this.board.has(`${n1} ${n2}`)) {
+      return "Ship already placed here";
+    }
     if (
       n2 >= this.min[1] &&
       n2 <= this.max[1] &&
       n1 >= this.min[0] &&
       n1 <= this.max[0]
     ) {
-      let vertical = true;
       let cShip = new ship(n1, n2, s);
-      if (vertical === true) {
-        for (let i = 0; i < cShip.size; i++) {
-          this.board.set(`${n1} ${n2 - i}`, cShip);
-        }
-      } else {
-        for (let i = 0; i < cShip.size; i++) {
-          this.board.set(`${n1 - i} ${n2}`, cShip);
+      let i = 0;
+      let pos = [];
+      let neg = true;
+      while (i < s) {
+        if (vertical === true) {
+          if (neg === true) {
+            if (n2 - s + 1 >= this.min[1]) {
+              if (!this.board.has(`${n1} ${n2 - i}`)) {
+                pos.push(`${n1} ${n2 - i}`);
+                i++;
+              } else if (this.board.has(`${n1} ${n2 - i}`)) {
+                i = 0;
+                pos = [];
+                neg = false;
+              }
+            } else {
+              i = 0;
+              neg = false;
+            }
+          } else if (neg === false) {
+            if (n2 + s - 1 <= this.max[1]) {
+              if (!this.board.has(`${n1} ${n2 + i}`)) {
+                pos.push(`${n1} ${n2 + i}`);
+                i++;
+              } else if (this.board.has(`${n1} ${n2 + i}`)) {
+                pos = [];
+                break;
+              }
+            } else {
+              pos = [];
+              break;
+            }
+          }
+        } else if (vertical === false) {
+          if (neg === true) {
+            if (n1 - s + 1 >= this.min[0]) {
+              if (!this.board.has(`${n1 - i} ${n2}`)) {
+                pos.push(`${n1 - i} ${n2}`);
+                i++;
+              } else if (this.board.has(`${n1 - i} ${n2}`)) {
+                i = 0;
+                pos = [];
+                neg = false;
+              }
+            } else {
+              i = 0;
+              neg = false;
+            }
+          } else if (neg === false) {
+            if (n1 + s - 1 <= this.max[0]) {
+              if (!this.board.has(`${n1 + i} ${n2}`)) {
+                pos.push(`${n1 + i} ${n2}`);
+                i++;
+              } else if (this.board.has(`${n1 + i} ${n2}`)) {
+                pos = [];
+                break;
+              }
+            } else {
+              pos = [];
+              break;
+            }
+          }
         }
       }
-      // use bfs logic to ensure the ship will fit
-      //cShip.damageArr[0] = [n1, n2];
-      // add to board
+      if (pos.length === 0) return "No possible moves";
+      for (let i = 0; i < pos.length; i++) {
+        this.board.set(pos[i], cShip);
+      }
       return "Ship placed";
     } else return "Out of bounds";
   }
@@ -75,3 +143,64 @@ class player {
   }
 }
 export { ship, gameboard, player };
+
+//old
+
+// if (vertical === true) {
+// }
+// if (
+//   n2 >= this.min[1] &&
+//   n2 <= this.max[1] &&
+//   n1 >= this.min[0] &&
+//   n1 <= this.max[0]
+// ) {
+//   let cShip = new ship(n1, n2, s);
+//   if (vertical === true) {
+//     const v = [`${n1} ${n2 - i}`, `${n1} ${n2 + i}`];
+//     if (n2 - s >= this.min[1] || n2 + s <= this.max[1]) {
+//       v.forEach((element) => {
+//         const pos = [];
+//         for (let i = 0; i < s; i++) {
+//           if (this.board().has(element)) {
+//             continue;
+//           }
+//           pos.push(element);
+//           if (i === s) {
+//             for (let j = 0; j < pos.length; j++) {
+//               this.board.set(pos[j], cShip);
+//             }
+//           }
+//         }
+//       });
+//     }
+//   } else {
+//     if (n1 - s >= this.min[0] || n1 + s <= this.max[0]) {
+//       for (let i = 0; i < s; i++) {
+//         const h = [`${n1 - i} ${n2}`, `${n1 + i} ${n2}`];
+//         for (const element of h) {
+//           const pos = [];
+//           if (this.board().has(element)) {
+//             continue;
+//           }
+//           pos.push(element);
+//           if (i === s) {
+//             for (let j = 0; j < pos.length; j++) {
+//               this.board.set(pos[j], cShip);
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+//   // use bfs logic to ensure the ship will fit
+//   //cShip.damageArr[0] = [n1, n2];
+//   // add to board
+//   return "Ship placed";
+// }
+
+let testPlace = new gameboard();
+testPlace.placeShip(9, 9, 3, true);
+testPlace.placeShip(0, 0, 3, true);
+testPlace.placeShip(8, 7, 3, false);
+testPlace.placeShip(9, 9, 3, true);
+console.log(testPlace.displayBoard());
