@@ -1,4 +1,4 @@
-import { gameboard, ship } from "./bShip.js";
+import { gameboard, player, ship, startGame } from "./bShip.js";
 
 test("ship placed", () => {
   let testPlace = new gameboard();
@@ -34,6 +34,7 @@ test("Battleship sunk", () => {
   testPlace.placeShip(9, 9, 3, true);
   testPlace.receiveAttack(9, 9);
   testPlace.receiveAttack(9, 8);
+  testPlace.placeShip(0, 0, 3, true);
   expect(testPlace.receiveAttack(9, 7)).toBe("Submarine sunk");
 });
 test("Ship placed already", () => {
@@ -42,14 +43,22 @@ test("Ship placed already", () => {
   expect(testPlace.placeShip(9, 9, 3)).toBe("Ship already placed here");
 });
 
-test("Conflic", () => {
+test("Conflict", () => {
   let testPlace = new gameboard();
   testPlace.placeShip(9, 9, 3, true);
+
   testPlace.placeShip(0, 0, 3, true);
   testPlace.placeShip(8, 7, 3, false);
   testPlace.placeShip(9, 9, 3, true);
-  testPlace.displayBoard();
 
   expect(testPlace.placeShip(8, 9, 3, true)).toBe("No possible moves");
 });
 
+test("game over", () => {
+  let testPlace = new gameboard();
+  testPlace.placeShip(1, 1, 2, true);
+  testPlace.receiveAttack(1, 0);
+  console.log(testPlace.displayBoard());
+  console.log(testPlace.gameOver());
+  expect(testPlace.receiveAttack(1, 1)).toBe("Game over");
+});

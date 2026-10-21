@@ -4,7 +4,9 @@ class ship {
     this.damage = 0;
     this.name = ["Destroyer", "Submarine", "Cruiser", "Battleship", "Carrier"];
     if (s > this.name.length || s < 2)
-      throw new Error(`Please enter a number between 2 and ${this.name.length}`);
+      throw new Error(
+        `Please enter a number between 2 and ${this.name.length}`,
+      );
     this.name = this.name[this.size - 2];
     this.sunk = false;
   }
@@ -14,9 +16,8 @@ class ship {
   isSunk() {
     if (this.damage >= this.size) {
       this.sunk = true;
-      return `${this.name} sunk`;
     }
-    return "Ship hit";
+    return this.sunk;
   }
 }
 
@@ -26,7 +27,6 @@ class gameboard {
   constructor() {
     this.board = new Map();
   }
-
   receiveAttack(n1, n2) {
     if (this.board.get(`${n1} ${n2}`) === "fired") {
       return "Already fired in this location";
@@ -42,7 +42,13 @@ class gameboard {
 
         ship.hit();
         this.board.set(`${n1} ${n2}`, "fired");
-        return ship.isSunk();
+        let sunk = ship.isSunk();
+        let over = this.gameOver();
+        if (over === true) return "Game over";
+
+        if (sunk === false) return "Ship hit";
+
+        if (sunk === true) return `${ship.name} sunk`;
       } else {
         this.board.set(`${n1} ${n2}`, "fired");
         return "Ship missed";
@@ -52,6 +58,15 @@ class gameboard {
   }
   displayBoard() {
     return this.board;
+  }
+  gameOver() {
+    //figure this out...
+    return this.board.forEach((value, key) => {
+      if (this.board.get(key).sunk === false) {
+        return this.board.get(key).sunk;
+      }
+      return true;
+    });
   }
   placeShip(n1, n2, s, vertical = true) {
     if (this.board.has(`${n1} ${n2}`)) {
@@ -138,11 +153,53 @@ class gameboard {
 }
 
 class player {
-  constructor() {
+  constructor(isPlayer = true) {
     this.board = new gameboard();
+    this.startPlacement(isPlayer);
+  }
+  startPlacement(isPlayer) {
+    let maxShips = 8;
+    let placed = 0;
+    if (isPlayer === false) {
+      while (placed < maxShips) {
+        // bot placement algo
+        let x = Math.floor(Math.random() * 10);
+        let y = Math.floor(Math.random() * 10);
+        let s = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+        let v = Math.round(Math.random());
+        let ship = this.board.placeShip(x, y, s, Boolean(v));
+        if (ship === "Ship placed") {
+          placed++;
+        }
+      }
+    } else {
+      while (placed < maxShips) {
+        //temp vars for testing
+        let x = Math.floor(Math.random() * 10);
+        let y = Math.floor(Math.random() * 10);
+        let s = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+        let v = Math.round(Math.random());
+
+        //const x = parseInt(prompt("Please enter x"));
+        //const y = parseInt(prompt("Please enter x"));
+        //const v = prompt("vertical y/n");
+        let ship = this.board.placeShip(x, y, s, Boolean(v));
+        if (ship === "Ship placed") {
+          placed++;
+        }
+      }
+    }
   }
 }
+function startGame(isPlayer = false) {
+  let p1 = new player();
+  let p2 = new player(isPlayer);
+  const players = [p1, p2];
+}
+
 export { ship, gameboard, player };
+
+console.log(startGame());
 
 //old
 
@@ -197,10 +254,3 @@ export { ship, gameboard, player };
 //   // add to board
 //   return "Ship placed";
 // }
-
-let testPlace = new gameboard();
-testPlace.placeShip(9, 9, 3, true);
-testPlace.placeShip(0, 0, 3, true);
-testPlace.placeShip(8, 7, 3, false);
-testPlace.placeShip(9, 9, 3, true);
-console.log(testPlace.displayBoard());
