@@ -44,11 +44,12 @@ class gameboard {
         this.board.set(`${n1} ${n2}`, "fired");
         let sunk = ship.isSunk();
         let over = this.gameOver();
-        if (over === true) return "Game over";
+
+        if (sunk === true && over === true) return "Game over";
 
         if (sunk === false) return "Ship hit";
 
-        if (sunk === true) return `${ship.name} sunk`;
+        if (sunk === true && over === false) return `${ship.name} sunk`;
       } else {
         this.board.set(`${n1} ${n2}`, "fired");
         return "Ship missed";
@@ -61,12 +62,12 @@ class gameboard {
   }
   gameOver() {
     //figure this out...
-    return this.board.forEach((value, key) => {
-      if (this.board.get(key).sunk === false) {
-        return this.board.get(key).sunk;
+    for (const value of this.board.values()) {
+      if (typeof value === "object") {
+        return false;
       }
-      return true;
-    });
+    }
+    return true;
   }
   placeShip(n1, n2, s, vertical = true) {
     if (this.board.has(`${n1} ${n2}`)) {
@@ -199,7 +200,7 @@ function startGame(isPlayer = false) {
 
 export { ship, gameboard, player };
 
-console.log(startGame());
+startGame();
 
 //old
 
