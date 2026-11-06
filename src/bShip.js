@@ -167,6 +167,7 @@ const bShip = (function () {
       this.board = new gameboard();
       this.startPlacement(isPlayer);
       this.player = isPlayer
+      this.target = new Map();
     }
     startPlacement(isPlayer, x, y, s, v) {
       let maxShips = 8;
