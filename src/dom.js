@@ -1,7 +1,29 @@
 import "./style.css";
 const dom = (function () {
+  const playerChoice = function () {
+    const body = document.querySelector("body");
+    body.innerHTML = "";
+    const container = document.createElement("div");
+    const playerContainer = document.createElement("div");
+    const instruct = document.createElement("h1");
+    instruct.textContent = "How man players?";
+    const onePlayer = document.createElement("button");
+    onePlayer.textContent = "One";
+    onePlayer.classList.add("one");
+    const twoPlayer = document.createElement("button");
+    twoPlayer.textContent = "Two";
+    twoPlayer.classList.add("two");
+    container.classList.add("container");
+    container.appendChild(instruct);
+    playerContainer.appendChild(onePlayer);
+    playerContainer.appendChild(twoPlayer);
+    container.appendChild(playerContainer);
+    body.appendChild(container);
+  };
+
   const createDom = function () {
     const body = document.querySelector("body");
+    body.innerHTML = "";
     const container = document.createElement("div");
     container.classList.add("container");
 
@@ -51,14 +73,22 @@ const dom = (function () {
     }
     board.board.forEach((item, key) => {
       let rep = document.querySelector(`[class~="${key.replaceAll(" ", "")}"]`);
-      rep.classList.add(`ship-${item.shipNum}`);
-      if (item === "fired") {
-        rep.classList.add(`fired`);
-        const test = document.createElement("b");
-        test.textContent = `fired`;
+      if (item.shipNum) rep.classList.add(`ship-${item.shipNum}`);
+
+      let test;
+      if (item === "missed") {
+        rep.classList.add(`missed`);
+        test = document.createElement("b");
+        test.textContent = `missed`;
+        rep.appendChild(test);
       }
-      const test = document.createElement("b");
-      test.textContent = ` ${item.name}`;
+      if (item === "hit") {
+        rep.classList.add(`hit`);
+        test = document.createElement("b");
+        test.textContent = `hit`;
+        rep.appendChild(test);
+      }
+      test = document.createElement("b");
       rep.appendChild(test);
       console.log(item, key);
     });
@@ -85,10 +115,17 @@ const dom = (function () {
       let rep = document.querySelector(
         `[class~="s${key.replaceAll(" ", "")}"]`,
       );
-      if (item === "fired") {
-        rep.classList.add(`eFired`);
+      console.log(item);
+      if (item === "hit") {
+        rep.classList.add(`eHit`);
         const test = document.createElement("b");
-        test.textContent = `fired`;
+        test.textContent = `hit`;
+        rep.appendChild(test);
+      }
+      if (item === "missed") {
+        rep.classList.add(`eMissed`);
+        const test = document.createElement("b");
+        test.textContent = `missed`;
         rep.appendChild(test);
       }
     });
@@ -96,9 +133,9 @@ const dom = (function () {
   const takeDamage = function (x, y) {
     let title = `${x}${y}`;
     let rep = document.querySelector(`[class~="${title}"]`);
-    rep.classList.add("fired");
+    rep.classList.add("missed");
   };
-  return { createDom, populateBoard, takeDamage };
+  return { createDom, populateBoard, takeDamage, playerChoice };
 })();
 
 export default dom;

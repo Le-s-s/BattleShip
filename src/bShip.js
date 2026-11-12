@@ -37,7 +37,10 @@ const bShip = (function () {
       this.hits = new Map();
     }
     receiveAttack(n1, n2) {
-      if (this.board.get(`${n1} ${n2}`) === "fired") {
+      if (
+        this.board.get(`${n1} ${n2}`) === "missed" ||
+        this.board.get(`${n1} ${n2}`) === "hit"
+      ) {
         return "Already fired in this location";
       }
       if (
@@ -47,21 +50,28 @@ const bShip = (function () {
         n1 <= this.max[0]
       ) {
         if (this.board.has(`${n1} ${n2}`)) {
-          let ship = this.board.get(`${n1} ${n2}`);
+          if (this.board.has(`${n1} ${n2}`)) {
+            let ship = this.board.get(`${n1} ${n2}`);
 
-          ship.hit();
-          this.board.set(`${n1} ${n2}`, "fired");
-          let sunk = ship.isSunk();
-          let over = this.gameOver();
+            ship.hit();
+            this.board.set(`${n1} ${n2}`, "hit");
 
-          if (sunk === true && over === true) return "Game over";
+            let sunk = ship.isSunk();
+            let over = this.gameOver();
 
-          if (sunk === false) return "Ship hit";
+            if (sunk === true && over === true) return "Game over";
 
-          if (sunk === true && over === false) return `${ship.name} sunk`;
-        } else {
-          this.board.set(`${n1} ${n2}`, "fired");
-          return "Ship missed";
+            if (sunk === false) {
+              return "Ship hit";
+            }
+
+            if (sunk === true && over === false) {
+              return `${ship.name} sunk`;
+            }
+          } else {
+            this.board.set(`${n1} ${n2}`, "missed");
+            return "Ship missed";
+          }
         }
       } else return "Stay in bounds";
       // check each ship in board if match, then damage if match
@@ -166,7 +176,7 @@ const bShip = (function () {
     constructor(isPlayer = true) {
       this.board = new gameboard();
       this.startPlacement(isPlayer);
-      this.player = isPlayer
+      this.player = isPlayer;
       this.target = new Map();
     }
     startPlacement(isPlayer, x, y, s, v) {
