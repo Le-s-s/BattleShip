@@ -68,10 +68,10 @@ const bShip = (function () {
             if (sunk === true && over === false) {
               return `${ship.name} sunk`;
             }
-          } else {
-            this.board.set(`${n1} ${n2}`, "missed");
-            return "Ship missed";
           }
+        } else {
+          this.board.set(`${n1} ${n2}`, "missed");
+          return "Ship missed";
         }
       } else return "Stay in bounds";
       // check each ship in board if match, then damage if match
