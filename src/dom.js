@@ -45,7 +45,6 @@ const dom = (function () {
       let rep = document.querySelector(
         `[class~="s${key.replaceAll(" ", "")}"]`,
       );
-      console.log(item);
       if (item === "hit") {
         rep.classList.add(`eHit`);
         const test = document.createElement("b");
@@ -129,7 +128,6 @@ const dom = (function () {
       }
       test = document.createElement("b");
       rep.appendChild(test);
-      console.log(item, key);
     });
     enemyBoard(board,eBoard)
   };
