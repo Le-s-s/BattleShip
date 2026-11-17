@@ -20,7 +20,46 @@ const dom = (function () {
     container.appendChild(playerContainer);
     body.appendChild(container);
   };
+  const enemyBoard = function (board,eBoard) {
+    let boardShot = document.querySelector(".boardShot");
+    let x = 0;
+    let y = 0;
+    while (true) {
+      let title = `s${y}${x}`;
+      const eCard = document.createElement("div");
+      const test = document.createElement("b");
+      test.textContent = title;
+      eCard.appendChild(test);
+      eCard.classList.add("eCard");
+      eCard.classList.add(title);
 
+      boardShot.appendChild(eCard);
+      if (x === 9 && y === 9) {
+        break;
+      } else if (x !== 9 && y === 9) {
+        x++;
+        y = 0;
+      } else y++;
+    }
+    eBoard.board.forEach((item, key) => {
+      let rep = document.querySelector(
+        `[class~="s${key.replaceAll(" ", "")}"]`,
+      );
+      console.log(item);
+      if (item === "hit") {
+        rep.classList.add(`eHit`);
+        const test = document.createElement("b");
+        test.textContent = `hit`;
+        rep.appendChild(test);
+      }
+      if (item === "missed") {
+        rep.classList.add(`eMissed`);
+        const test = document.createElement("b");
+        test.textContent = `missed`;
+        rep.appendChild(test);
+      }
+    });
+  };
   const createDom = function () {
     const body = document.querySelector("body");
     body.innerHTML = "";
@@ -92,43 +131,7 @@ const dom = (function () {
       rep.appendChild(test);
       console.log(item, key);
     });
-    x = 0;
-    y = 0;
-    while (true) {
-      let title = `s${y}${x}`;
-      const eCard = document.createElement("div");
-      const test = document.createElement("b");
-      test.textContent = title;
-      eCard.appendChild(test);
-      eCard.classList.add("eCard");
-      eCard.classList.add(title);
-
-      boardShot.appendChild(eCard);
-      if (x === 9 && y === 9) {
-        break;
-      } else if (x !== 9 && y === 9) {
-        x++;
-        y = 0;
-      } else y++;
-    }
-    eBoard.board.forEach((item, key) => {
-      let rep = document.querySelector(
-        `[class~="s${key.replaceAll(" ", "")}"]`,
-      );
-      console.log(item);
-      if (item === "hit") {
-        rep.classList.add(`eHit`);
-        const test = document.createElement("b");
-        test.textContent = `hit`;
-        rep.appendChild(test);
-      }
-      if (item === "missed") {
-        rep.classList.add(`eMissed`);
-        const test = document.createElement("b");
-        test.textContent = `missed`;
-        rep.appendChild(test);
-      }
-    });
+    enemyBoard(board,eBoard)
   };
   const takeDamage = function (x, y) {
     let title = `${x}${y}`;

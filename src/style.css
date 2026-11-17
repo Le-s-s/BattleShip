@@ -54,7 +54,7 @@ div {
   background-color: aqua;
 }
 .eCard {
-  background-color: red
+  background-color: red;
 }
 .card.ship-0 {
   background-color: grey;
@@ -82,10 +82,17 @@ div {
   background-color: white;
 }
 
-.fired {
+.missed {
   background-color: red;
 }
 
-.eFired {
-  background-color: white
+.eMissed {
+  background-color: aqua
+}
+
+.hit {
+  background-color: red;
+}
+.eHit {
+  background-color: white;
 }
