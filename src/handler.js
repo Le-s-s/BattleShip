@@ -2,7 +2,6 @@ import dom from "./dom.js";
 import bShip from "./bShip.js";
 const handler = (function () {
   const start = async function () {
-    console.log(confirm);
     dom.playerChoice();
     let onePlayer = document.querySelector(".one");
     let twoPlayer = document.querySelector(".two");
@@ -38,11 +37,10 @@ const handler = (function () {
     let min = p2.board.min;
     let max = p2.board.max;
     let attacked = false;
-    let vert = false;
     let iterate = Array.from(p2.target.entries());
 
     if (iterate.length === 0) {
-      p2Result = handleAttack(p2, p1);
+      p2Result = cpuAttack(p2, p1);
     } else if (iterate.length > 0) {
       for (let i = iterate.length - 1; i >= 0; i--) {
         if (iterate[i][1] === "hit") {
@@ -67,20 +65,20 @@ const handler = (function () {
               xCur <= max[0]
             ) {
               if (!p2.target.has(opt)) {
-                if (yCur > hitY || yCur < hitY) vert = true;
                 attacked = true;
                 p2Result = handleAttack(p2, p1, xCur, yCur);
                 if (p2Result === "Ship hit") {
                 } else if (p2Result?.includes("sunk")) {
                 } else if (p2Result === "Game over") {
                   alert("p1 loses");
-                  return `p1 loses`;
+                  return gameOver(p1, p2);
                 } else if (p2Result === "Already fired in this location") {
-                  cpuTurn(p1, p2);
+                  p2Result = undefined;
+                  continue;
                 } else if (p2Result === "Stay in bounds") {
-                  cpuTurn(p1, p2);
+                  p2Result = undefined;
+                  continue;
                 }
-                turn(p1, p2);
                 break;
               }
               continue;
@@ -126,12 +124,13 @@ const handler = (function () {
             } else if (Result?.includes("sunk")) {
               alert(Result);
             } else if (Result === "Game over") {
-              alert("p2 loses");
-              return `p2 loses`;
+              alert("p1 loses");
+
+              return gameOver(p1, p2);
             } else if (Result === "Already fired in this location") {
-              p2Turn(p1, p2);
+              return p2Turn(p1, p2);
             } else if (Result === "Stay in bounds") {
-              p2Turn(p1, p2);
+              return p2Turn(p1, p2);
             }
             turn(p1, p2);
           },
@@ -170,17 +169,15 @@ const handler = (function () {
               alert(Result);
             } else if (Result === "Game over") {
               alert("p2 loses");
-              return `p2 loses`;
+              return gameOver(p1, p2);
             } else if (Result === "Already fired in this location") {
-              turn(p1, p2);
+              return turn(p1, p2);
             } else if (Result === "Stay in bounds") {
-              turn(p1, p2);
+              return turn(p1, p2);
             }
-            if (p2.player === true) {
-              p2Turn(p1, p2);
-            } else if (p2.player !== true) {
+            if (p2.player === false) {
               cpuTurn(p1, p2);
-            }
+            } else p2Turn(p1, p2);
           },
           { once: true },
         );
@@ -189,30 +186,7 @@ const handler = (function () {
   }
   function handleAttack(a, d, x, y) {
     let Result;
-    // if (a.player === false && b === false && x < 0) {
-    //   let w, h;
 
-    //   while (true) {
-    //     w = Math.floor(Math.random() * 10);
-    //     h = Math.floor(Math.random() * 10);
-
-    //     if (!a.target.has(`${w} ${h}`)) {
-    //       Result = handleAttack(a, d, w, h, true);
-    //       console.log(`${w} ${h}: ${Result}`);
-    //       if (Result?.includes("sunk")) {
-    //         a.target.set(`${x} ${y}`, "hit");
-    //         //a.target.clear();
-    //       } else if (Result === "Ship hit") {
-    //         a.target.set(`${x} ${y}`, "hit");
-    //       }
-    //       if (Result === "Already fired in this location") {
-    //         continue;
-    //       }
-
-    //       return Result;
-    //     }
-    //   }
-    // } else {
     Result = d.board.receiveAttack(x, y);
     if (Result === "Ship hit") {
       a.target.set(`${x} ${y}`, "hit");
@@ -222,10 +196,10 @@ const handler = (function () {
       a.target.set(`${x} ${y}`, "hit");
     }
     return Result;
-    // }
   }
 
   function cpuAttack(a, d) {
+    if (a.target.size >= 100) return;
     let w, h;
 
     while (true) {
@@ -234,55 +208,24 @@ const handler = (function () {
 
       if (!a.target.has(`${w} ${h}`)) {
         let Result = handleAttack(a, d, w, h);
-        console.log(`${w} ${h}: ${Result}`);
-        if (Result?.includes("sunk")) {
-          a.target.set(`${w} ${h}`, "hit");
-          //a.target.clear();
-        } else if (Result === "Ship hit") {
-          a.target.set(`${w} ${h}`, "hit");
-        } else if (Result === "Ship missed") {
-          a.target.set(`${w} ${h}`, "missed");
-        } else if (Result === "Already fired in this location") {
+        if (Result === "Already fired in this location") {
           continue;
         }
-
+        if (Result === "Stay in bounds") {
+          continue;
+        }
+        console.log(Result);
         return Result;
       }
     }
   }
-  // function p2Attack(a, d, w = 0, h = 0) {
-  //   if (a.player === true) {
-  //     let Result = d.board.receiveAttack(w, h);
-  //     if (Result === "Ship hit") {
-  //       a.target.set(`${w} ${h}`, "hit");
-  //     } else if (Result === "Ship missed") {
-  //       a.target.set(`${w} ${h}`, "missed");
-  //     } else if (Result === "Already fired in this location") {
-  //       return Result;
-  //     } else if (Result.includes("sunk")) {
-  //       alert("Sunk");
-  //     }
-  //     return Result;
-  //   } else {
-  //     let x, y;
-
-  //     while (true) {
-  //       x = Math.floor(Math.random() * 10);
-  //       y = Math.floor(Math.random() * 10);
-
-  //       if (!a.target.has(`${x} ${y}`)) {
-  //         let result = handleAttack(a, d, x, y);
-  //         console.log(`${x} ${y}: ${result}`);
-
-  //         if (result === "Already fired in this location") {
-  //           continue;
-  //         }
-
-  //         return result;
-  //       }
-  //     }
-  //   }
-  // }
+  function gameOver(p1, p2) {
+    let body = document.querySelector("body");
+    body.innerHTML = "";
+    p2 = null;
+    p1 = null;
+    start()
+  }
 
   return { start };
 })();
