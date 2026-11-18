@@ -1,0 +1,1 @@
+import handler from"./handler.js";addEventListener("DOMContentLoaded",e=>{handler.start()});
