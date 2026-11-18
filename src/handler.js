@@ -20,16 +20,71 @@ const handler = (function () {
       { once: true },
     );
   };
-  function startGame(player) {
+  async function startGame(player) {
     dom.createDom();
     let p2;
     let p1 = bShip.startGame(true);
+    alert("p1 place your ships");
+    await placement(p1);
     if (player === true) {
       p2 = bShip.startGame(true);
+      alert("p2 place your ships");
+      await placement(p2);
     } else {
       p2 = bShip.startGame(false);
     }
+
     turn(p1, p2);
+  }
+
+  async function placement(p1) {
+    let allowedShips = [5, 4, 3, 3, 2];
+    let placed = 0;
+    let maxShips = allowedShips.length;
+
+    dom.populateBoard(p1.board, p1.board, true);
+
+    return new Promise((resolve) => {
+      function addListeners() {
+        document.querySelectorAll(".card").forEach((card) => {
+          card.addEventListener("click", handlePlacement);
+        });
+      }
+
+      function handlePlacement(e) {
+        if (placed >= maxShips) return;
+
+        let coords = e.currentTarget.classList
+          .toString()
+          .replaceAll(/[^0-9]/g, "")
+          .split("");
+
+        let x = coords[0];
+        let y = coords[1];
+
+        let s = allowedShips[placed];
+        let v = confirm("Vertical?");
+
+        let ship = p1.board.placeShip(x, y, s, Boolean(v), placed + 1);
+
+        if (ship === "Ship placed") {
+          alert(ship);
+          placed++;
+
+          if (placed === maxShips) {
+            resolve();
+            return;
+          }
+
+          dom.populateBoard(p1.board, p1.board, true);
+          addListeners();
+        } else {
+          alert(ship);
+        }
+      }
+
+      addListeners();
+    });
   }
 
   function cpuTurn(p1, p2) {
@@ -65,21 +120,21 @@ const handler = (function () {
               xCur <= max[0]
             ) {
               if (!p2.target.has(opt)) {
-                attacked = true;
                 p2Result = handleAttack(p2, p1, xCur, yCur);
-                if (p2Result === "Ship hit") {
-                } else if (p2Result?.includes("sunk")) {
+                if (
+                  p2Result === "Ship hit" ||
+                  p2Result === "Ship missed" ||
+                  p2Result?.includes("sunk")
+                ) {
+                  attacked = true;
+                  break;
                 } else if (p2Result === "Game over") {
                   alert("p1 loses");
                   return gameOver(p1, p2);
-                } else if (p2Result === "Already fired in this location") {
-                  p2Result = undefined;
-                  continue;
-                } else if (p2Result === "Stay in bounds") {
+                } else {
                   p2Result = undefined;
                   continue;
                 }
-                break;
               }
               continue;
             } else {
@@ -224,7 +279,7 @@ const handler = (function () {
     body.innerHTML = "";
     p2 = null;
     p1 = null;
-    start()
+    start();
   }
 
   return { start };
