@@ -20,7 +20,7 @@ const dom = (function () {
     container.appendChild(playerContainer);
     body.appendChild(container);
   };
-  const enemyBoard = function (board,eBoard) {
+  const enemyBoard = function (board, eBoard) {
     let boardShot = document.querySelector(".boardShot");
     let x = 0;
     let y = 0;
@@ -84,7 +84,7 @@ const dom = (function () {
     container.appendChild(board);
     container.appendChild(pickShip);
   };
-  const populateBoard = function (board, eBoard) {
+  const populateBoard = function (board, eBoard, b = false) {
     let boardSection = document.querySelector(".board");
     let boardShot = document.querySelector(".boardShot");
     boardSection.innerHTML = "";
@@ -129,7 +129,9 @@ const dom = (function () {
       test = document.createElement("b");
       rep.appendChild(test);
     });
-    enemyBoard(board,eBoard)
+    if (b === false) {
+      enemyBoard(board, eBoard);
+    }
   };
   const takeDamage = function (x, y) {
     let title = `${x}${y}`;
